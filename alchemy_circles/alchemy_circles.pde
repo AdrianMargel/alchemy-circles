@@ -3,7 +3,7 @@
     ---------------
     This program procedurally generates alchemy circles using recursion.
     
-    written by Adrian Margel, 2017
+    written by Adrian Margel, Summer 2018
 */
 
 
