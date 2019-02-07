@@ -9,4 +9,4 @@ I wrote this code the summer after graduating highschool as a fun experiment. Th
 
 The first few lines of setup() can be changed to easily modify the settings of the program. Size() for the size of the window, spell count for the number of spells to be drawn and complexity for the detail each alchemy circle will generate with with. 
 
-Code written summer 2018.
+The code was written summer 2018.
