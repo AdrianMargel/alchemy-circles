@@ -1,11 +1,95 @@
 /*
-  Alchemy Circles
-  ---------------
-  This program procedurally generates alchemy circles using recursion.
-  
-  written by Adrian Margel, 2017
+    Alchemy Circles
+    ---------------
+    This program procedurally generates alchemy circles using recursion.
+    
+    written by Adrian Margel, 2017
 */
 
+
+//-----------------------
+//    General/Main
+//-----------------------
+
+//the list of alc circles to be drawn to screen
+ArrayList<Node> spells;
+//how large things are drawn to screen
+float zoom;
+
+void setup(){
+  //----------------SAFE TO MODIFY THESE VARIABLES----------------
+  
+  //setup size of window
+  size(1600,800);
+  
+  //set number of alc circles to be drawn
+  int spellCount=2;
+  
+  //set how detailed those circles will be
+  int complexity=6;
+  
+  //---------------------------------------------
+  
+  //calculate number of rows and columns needed to neatly display all alc circles on screen
+  float columns=((float)height/width);
+  float temp=sqrt(spellCount/columns);
+  temp=ceil(temp);
+  int rCount=(int)(temp);
+  int cCount=ceil(spellCount/temp);
+  
+  //set zoom to fit all columns and rows
+  zoom=min(width/rCount,height/cCount);
+  
+  //init spells array
+  spells=new ArrayList<Node>();
+  for(int i=0;i<spellCount;i++){
+    spells.add(new Node());
+  }
+  //generate spells
+  for(Node n:spells){
+    //this boolean will be changed only be changed to true by the mutate method if the circle was able to generate at the desired depth
+    //if the boolean does not change to true then it mean the alc circle must be generated again
+    boolean[] finished={false};
+    while(!finished[0]){
+      n.create(1);
+      mutate(n,complexity,finished,true);
+    }
+  }
+}
+void draw(){
+  //draw background
+  background(0);
+  
+  //set color of the alc circles
+  stroke(200,100,100);
+  //set how thick the lines are with the alc circles
+  strokeWeight(1);
+  //set a fill for the alc circles.
+  //fill will mean that higher levels of alc circle will cover up lower ones
+  //it generally looks best with a semi-transparent fill
+  fill(0,150);
+  
+  //display spells
+  int row=0;
+  int column=0;
+  for(int i=0;i<spells.size();i++){
+    if(zoom*(column+1)>width){
+      row++;
+      column=0;
+    }
+    spells.get(i).display(zoom*(column+0.5),(row+0.5)*zoom,0,zoom*0.7);
+    column++;
+  }
+  
+  //animate all spells
+  for(Node n:spells){
+    spin(n);
+  }
+}
+
+//-----------------------
+//    Classes
+//-----------------------
 
 //this acts as the highest object for describing each alc circle
 //imagine this as the starting point for every alc circle
@@ -208,77 +292,9 @@ class Shape{
   }
 }
 
-//the list of alc circles to be drawn to screen
-ArrayList<Node> spells;
-//how large things are drawn to screen
-float zoom;
-//the number of spells to be drawn
-int spellCount;
-
-void setup(){
-  //setup size
-  size(1600,800);
-  //set number of alc circles to be drawn
-  spellCount=2;
-  //set how detailed those circles will be
-  int complexity=6;
-  
-  //calculate number of rows and columns needed to neatly display all alc circles on screen
-  float columns=((float)height/width);
-  float temp=sqrt(spellCount/columns);
-  temp=ceil(temp);
-  int rCount=(int)(temp);
-  int cCount=ceil(spellCount/temp);
-  
-  //set zoom to fit all columns and rows
-  zoom=min(width/rCount,height/cCount);
-  
-  //init spells array
-  spells=new ArrayList<Node>();
-  for(int i=0;i<spellCount;i++){
-    spells.add(new Node());
-  }
-  //generate spells
-  for(Node n:spells){
-    //this boolean will be changed only be changed to true by the mutate method if the circle was able to generate at the desired depth
-    //if the boolean does not change to true then it mean the alc circle must be generated again
-    boolean[] finished={false};
-    while(!finished[0]){
-      n.create(1);
-      mutate(n,complexity,finished,true);
-    }
-  }
-}
-void draw(){
-  //draw background
-  background(0);
-  
-  //set color of the alc circles
-  stroke(200,100,100);
-  //set how thick the lines are with the alc circles
-  strokeWeight(1);
-  //set a fill for the alc circles.
-  //fill will mean that higher levels of alc circle will cover up lower ones
-  //it generally looks best with a semi-transparent fill
-  fill(0,150);
-  
-  //display spells
-  int row=0;
-  int column=0;
-  for(int i=0;i<spells.size();i++){
-    if(zoom*(column+1)>width){
-      row++;
-      column=0;
-    }
-    spells.get(i).display(zoom*(column+0.5),(row+0.5)*zoom,0,zoom*0.7);
-    column++;
-  }
-  
-  //animate all spells
-  for(Node n:spells){
-    spin(n);
-  }
-}
+//-----------------------
+//    Program methods
+//-----------------------
 
 //this method will take a node and mutate it recursively until it is the set complexity/depth
 //this basically acts as a method for generating alc circles
