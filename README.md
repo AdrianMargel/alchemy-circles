@@ -1,5 +1,5 @@
 # Alchemy-Circles
-procedurally generated alchemy circles
+Procedurally generated alchemy circles
 
 ![alchemy circles](https://i.imgur.com/jyh8sx9.png)
 
