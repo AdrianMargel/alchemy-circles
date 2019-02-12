@@ -1,4 +1,4 @@
-# Alchemy-Circles
+# Alchemy Circles
 Procedurally generated alchemy circles
 
 ![alchemy circles](https://i.imgur.com/jyh8sx9.png)
