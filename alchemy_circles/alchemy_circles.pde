@@ -3,6 +3,8 @@
     ---------------
     This program procedurally generates alchemy circles using recursion.
     
+    Press space to generate a new set of alchemy circles.
+    
     written by Adrian Margel, Summer 2018
 */
 
@@ -16,19 +18,22 @@ ArrayList<Node> spells;
 //how large things are drawn to screen
 float zoom;
 
+//----------------SAFE TO MODIFY THESE VARIABLES----------------
+//number of alc circles to be drawn
+int spellCount=2;
+
+//how detailed those circles will be
+int complexity=6;
+
+//variables for easily tweaking the generation
+float densityLow=1;
+float densityHigh=0.8;
+//--------------------------------------------------------------
+
 void setup(){
-  //----------------SAFE TO MODIFY THESE VARIABLES----------------
   
-  //setup size of window
+  //setup size of window (can be changed, the code can support any size of window)
   size(1600,800);
-  
-  //set number of alc circles to be drawn
-  int spellCount=2;
-  
-  //set how detailed those circles will be
-  int complexity=6;
-  
-  //---------------------------------------------
   
   //calculate number of rows and columns needed to neatly display all alc circles on screen
   float columns=((float)height/width);
@@ -52,7 +57,7 @@ void setup(){
     boolean[] finished={false};
     while(!finished[0]){
       n.create(1);
-      mutate(n,complexity,finished,true);
+      mutate(n,complexity,finished,1);
     }
   }
 }
@@ -101,7 +106,7 @@ class Node{
   //how much it is rotated
   float baseAngle;
   
-  //constructor does not contain any info as the alc circles will be generated in the mutate() method
+  //constructor does not contain anything as the alc circles will be generated in the mutate() method
   //it worked out a bit cleaner to have all of the generation logic in one place rather than spread throughout multiple constructors
   Node(){
     
@@ -300,7 +305,7 @@ class Shape{
 //this basically acts as a method for generating alc circles
 //if it is able to reach the requested complexity it will set finished to true
 //isSeed will apply slightly different rules for the first/top node generated
-void mutate(Node n,int complexity,boolean[] finished,boolean isSeed){
+void mutate(Node n,int complexity,boolean[] finished,int depth){
   //if complexity is 0 or 1  it means that the set complexity was reached
   //keep in mind that complexity gets subtracted by 2 for corners so we have to test at least two values
   if(complexity==1||complexity==0){
@@ -310,7 +315,7 @@ void mutate(Node n,int complexity,boolean[] finished,boolean isSeed){
   if(complexity>=1){
     //randomly set the speed that the node will spin
     //set much lower spin if it is the seed node
-    if(isSeed){
+    if(depth==1){
       n.setSpin(random(-0.02,0.02));
     }else{
       n.setSpin(random(-0.05,0.05));
@@ -324,23 +329,32 @@ void mutate(Node n,int complexity,boolean[] finished,boolean isSeed){
     }else{
       //if complexity is greater than one add detail to the node and generate child nodes
       //set a shape for the node
-      n.setShape((int)random(3,8));
+      int initCorners=(int)random(3,8);
+      n.setShape(initCorners);
       
       //chance to create a child node inside the center of the shape
       if(random(0,1)>0.1){
         //create child
-        n.getSub().create(random(0.6,0.7));
+        if(initCorners==3){
+          n.getSub().create(random(0.8*densityLow,0.8*densityLow+0.1*densityHigh));
+        }else{
+          n.getSub().create(random(0.6*densityLow,0.6*densityLow+0.1*densityHigh));
+        }
         //mutate child but with less complexity
-        mutate(n.getSub(),complexity-1,finished,false);
+        mutate(n.getSub(),complexity-1,finished,depth+1);
       }
       //chance to create a child node on all of corners of the shape
       //if it is the seed then always generate a child
-      if(random(0,1)>0.2||isSeed){
+      if((random(0,1)>0.2||depth==1||depth==2)){
         //create child
-        n.getCorner().create(random(0.4,0.7));
+        if(initCorners==3||depth==2){
+          n.getCorner().create(random(0.3*densityLow,0.3*densityLow+0.3*densityHigh));
+        }else{
+          n.getCorner().create(random(0.4*densityLow,0.4*densityLow+0.3*densityHigh));
+        }
         //mutate child but with less complexity
         //due to the fact corner nodes are much smaller than center ones their complexity has 2 subtracted off of them so they don't generate with as much detail/depth
-        mutate(n.getCorner(),complexity-2,finished,false);
+        mutate(n.getCorner(),complexity-2,finished,depth+1);
       }
       
       //random chance for the alc circle to be "channeled" which changes the aesthetics slightly
@@ -359,5 +373,25 @@ void spin(Node n){
     //get the sub nodes of the passed in node and pass them through this spin function recursively
     spin(n.getSub());
     spin(n.getCorner());
+  }
+}
+
+//regenerate circles if space is pressed
+void keyPressed(){
+  if(key==' '){
+    spells=new ArrayList<Node>();
+    for(int i=0;i<spellCount;i++){
+      spells.add(new Node());
+    }
+    //generate spells
+    for(Node n:spells){
+      //this boolean will be changed only be changed to true by the mutate method if the circle was able to generate at the desired depth
+      //if the boolean does not change to true then it mean the alc circle must be generated again
+      boolean[] finished={false};
+      while(!finished[0]){
+        n.create(1);
+        mutate(n,complexity,finished,1);
+      }
+    }
   }
 }
